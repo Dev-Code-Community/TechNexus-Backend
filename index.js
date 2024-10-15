@@ -6,10 +6,10 @@ const app = express();
 const port = 3000;
 
 const pool = new Pool({
-    user: 'nexus',
+    user: 'postgres',
     host: 'localhost',
-    database: 'nexus_db',
-    password: 'nexus',
+    database: 'events_db',
+    password: 'password',
     port: 5432,
 });
 
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     res.send('Hello from the Node.js backend!');
 });
 
-app.get('/events/all', async (req, res) => {
+app.get('/events', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM events');
         res.json(result.rows);
@@ -35,7 +35,7 @@ app.get('/events/all', async (req, res) => {
 
 app.get('/events/online', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM events');
+        const result = await pool.query(`SELECT * FROM events WHERE type = 'online'`);
         res.json(result.rows);
     } catch (err) {
         console.error(err);
@@ -45,7 +45,7 @@ app.get('/events/online', async (req, res) => {
 
 app.get('/events/offline', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM events where eve');
+        const result = await pool.query(`SELECT * FROM events WHERE type = 'offline'`);
         res.json(result.rows);
     } catch (err) {
         console.error(err);
