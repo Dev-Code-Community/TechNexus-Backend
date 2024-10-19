@@ -7,7 +7,8 @@
 
 ### Steps to run the project:
 - npm install
-- docker postgres docker image pull:```docker compose up```
+- docker postgres docker image pull
+- from the root of this repository, execute the command:```docker compose up```
 - node index.js
 
 ### Schema: 
