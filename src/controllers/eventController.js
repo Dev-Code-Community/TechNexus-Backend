@@ -1,31 +1,6 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const { Pool } = require('pg');
+const pool = require('../models/db');
 
-const app = express();
-const port = 3000;
-
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'events_db',
-    password: 'password',
-    port: 5432,
-});
-
-// Use CORS to allow requests from the React app
-app.use(cors({
-    origin: 'http://localhost:5173'
-}));
-app.use(bodyParser.json());
-
-// Define a simple route
-app.get('/', (req, res) => {
-    res.send('Hello from the Node.js backend!');
-});
-
-app.get('/events', async (req, res) => {
+const getAllEvents = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM events');
         res.json(result.rows);
@@ -33,20 +8,20 @@ app.get('/events', async (req, res) => {
         console.error(err);
         res.status(500).send('Server error');
     }
-});
+};
 
-app.get('/events/online', async (req, res) => {
+const getOnlineEvents = async (req, res) => {
     try {
+        console.log('in online events');
         const result = await pool.query(`SELECT * FROM events WHERE type = 'online'`);
-        console.log('online events:', result.rows);
         res.json(result.rows);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
     }
-});
+};
 
-app.get('/events/offline', async (req, res) => {
+const getOfflineEvents = async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM events WHERE type = 'offline'`);
         res.json(result.rows);
@@ -54,13 +29,10 @@ app.get('/events/offline', async (req, res) => {
         console.error(err);
         res.status(500).send('Server error');
     }
-});
+};
 
-//write a post request for api :  return axios.post(`${API_BASE_URL}/createevent`, eventData);
-
-
-app.post('/createevent', (req, res) => {
-
+const createEvent = async (req, res) => {
+    console.log('reaching create event api.');
     const title = req.body.title ?? '';
     const date = req.body.date ?? '';
     const description = req.body.description ?? '';
@@ -76,7 +48,6 @@ app.post('/createevent', (req, res) => {
     const country = location.country ?? '';
     const state = location.state ?? '';
     const postalCode = location.postalCode ?? '';
-
 
     console.log(image, link, lat, lng, amenity, city, country, state, postalCode, title, description, date);
     const query = `
@@ -97,11 +68,11 @@ app.post('/createevent', (req, res) => {
         console.error('Error inserting event data:', err);
         res.status(500).json({ error: 'Failed to create event' });
     }
-});
+};
 
-
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+module.exports = {
+    getAllEvents,
+    getOnlineEvents,
+    getOfflineEvents,
+    createEvent,
+};
