@@ -98,7 +98,24 @@ app.post('/createevent', (req, res) => {
         res.status(500).json({ error: 'Failed to create event' });
     }
 });
+app.post('/createevent', async (req, res) => {
+    const { title, date, description, image, link, location } = req.body;
+    const { lat, lng, amenity, city, country, state, postalCode } = location;
 
+    const query = `
+        INSERT INTO events (title, date, description, image, link, lat, lng, amenity, city, country, state, postalCode)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `;
+    const values = [title, date, description, image, link, lat, lng, amenity, city, country, state, postalCode];
+
+    try {
+        await pool.query(query, values);
+        res.status(200).json({ message: 'Event created successfully' });
+    } catch (err) {
+        console.error('Error inserting event data:', err);
+        res.status(500).json({ error: 'Failed to create event' });
+    }
+});
 
 
 // Start the server
